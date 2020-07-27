@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<udf_manifest>
+  <version>1.0.2</version>
+  <library_name>my-udfs</library_name>
+  <backwards_compatible>true</backwards_compatible>
+  <functions>
+    <function>
+      <function_type>CHANNEL</function_type>
+      <function_name>Azure Boards</function_name>
+      <description>
+        Creates Azure Boards task for new events
+      </description>
+      <param_type>TEXT</param_type>
+      <class_file>com.overops.azure.boards.AzureBoardsFunction</class_file>
+      <default_params>
+        # Authentication User
+        authUser=
+
+        # Authentication Token
+        authToken=
+
+        # User or Organization associated with the project
+        organization=
+
+        # Project Name
+        project=
+      </default_params>
+    </function>
+  </functions>
+</udf_manifest>

@@ -1,0 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.overops</groupId>
+  <artifactId>udf-azure-boards</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+
+    <sonar.projectKey>udf-azure-boards</sonar.projectKey>
+    <sonar.organization>overops</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
+
+  <scm>
+    <connection>scm:git:git://github.com/takipi/udf-azure-boards.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/takipi/udf-azure-boards.git</developerConnection>
+    <url>https://github.com/takipi/udf-azure-boards.git</url>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.takipi</groupId>
+      <artifactId>api-client</artifactId>
+      <version>2.34.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.takipi</groupId>
+      <artifactId>api-client-util</artifactId>
+      <version>2.34.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.takipi</groupId>
+      <artifactId>overops-functions</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars</artifactId>
+      <version>4.1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.7</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.12</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>4.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <repositories>
+    <repository>
+      <id>atlassian</id>
+      <url>https://packages.atlassian.com/maven/repository/public</url>
+    </repository>
+  </repositories>
+
+</project>
