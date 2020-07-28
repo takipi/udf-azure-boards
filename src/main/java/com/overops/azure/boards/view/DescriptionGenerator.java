@@ -25,6 +25,8 @@ public class DescriptionGenerator {
      */
     public String generate(EventView event) {
         try {
+
+            // Override the way we do resource fetching do to the way code is loaded through the UDF Wrapper.
             TemplateLoader loader = new ClassPathTemplateLoader(){
                 @Override
                 protected URL getResource(String location) {
