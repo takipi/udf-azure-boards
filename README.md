@@ -1,6 +1,4 @@
-
-
-# UDF for Azure Boards ![PR Workflow](https://github.com/takipi/udf-azure-boards/workflows/PR%20Workflow/badge.svg)
+# UDF for Azure Boards ![Master Workflow](https://github.com/takipi/udf-azure-boards/workflows/Master%20Workflow/badge.svg)
 This User Defined Function (UDF) sends new OverOps events to Microsft Azure Boards.
 
 
