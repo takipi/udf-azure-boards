@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Data
 public class EventView implements Serializable {
 
-    private static final String DISPLAY_DATE_FORMAT = "EEE, dd/MM/yy HH:mm:ss a";
+    private static final String DISPLAY_DATE_FORMAT = "EEE, dd/MM/yy HH:mm:ss";
 
     // Fields from EventResult
     private String id;
@@ -72,7 +72,26 @@ public class EventView implements Serializable {
         this.jiraIssueUrl = eventResult.jira_issue_url;
         this.stats = eventResult.stats;
 
-        this.arcLink = EventUtil.getEventRecentLinkDefault(args.apiClient(), args.serviceId, args.eventId,
+        // This is needed because the snapshot needed to create the ARC screen link may not be available yet.
+        this.arcLink = fetchArcLink(args, eventResult);
+        for(int i=1; i <= 12; i++){
+            if(this.arcLink == null){
+                try {
+                    System.out.println("Fetch Arc Link (Retry #"+i+")");
+                    // Pause for the cause
+                    Thread.sleep(10000);
+                    this.arcLink = fetchArcLink(args, eventResult);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                break;
+            }
+        }
+    }
+
+    private String fetchArcLink(ContextArgs args, EventResult eventResult){
+        return EventUtil.getEventRecentLinkDefault(args.apiClient(), args.serviceId, args.eventId,
                 new DateTime(eventResult.first_seen), DateTime.now(),
                 Arrays.asList(eventResult.introduced_by_application),
                 Arrays.asList(eventResult.introduced_by_server),
