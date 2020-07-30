@@ -75,7 +75,7 @@ public class EventView implements Serializable {
         // This is needed because the snapshot needed to create the ARC screen link may not be available yet.
         this.arcLink = fetchArcLink(args, eventResult);
         for(int i=1; i <= 12; i++){
-            if(this.arcLink == null){
+            if(this.arcLink == null || this.arcLink.isEmpty()){
                 try {
                     System.out.println("Fetch Arc Link (Retry #"+i+")");
                     // Pause for the cause
