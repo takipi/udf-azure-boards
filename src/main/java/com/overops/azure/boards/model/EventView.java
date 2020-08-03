@@ -1,22 +1,24 @@
 package com.overops.azure.boards.model;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.takipi.api.client.data.event.MainEventStats;
+import com.takipi.api.client.request.service.ServicesRequest;
 import com.takipi.api.client.result.event.EventResult;
+import com.takipi.api.client.result.service.ServicesResult;
 import com.takipi.api.client.util.event.EventUtil;
 import com.takipi.udf.ContextArgs;
 import lombok.Data;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Event View Object
- *
+ * <p>
  * Needed since our EventResult object does not follow proper Java POJO standards
  */
 @Data
@@ -47,16 +49,24 @@ public class EventView implements Serializable {
     private MainEventStats stats;
 
     // Additional Stuff
+    private String serviceId;
+    private String serviceName;
     private String arcLink;
 
-    public EventView(ContextArgs args, EventResult eventResult){
+    @VisibleForTesting
+    public EventView(){
+    }
+
+    public EventView(ContextArgs args, AzureBoardsInput input, EventResult eventResult) {
 
         this.id = eventResult.id;
         this.summary = eventResult.summary;
         this.type = eventResult.type;
         this.name = eventResult.name;
         this.message = eventResult.message;
-        this.firstSeen = DateTime.parse(eventResult.first_seen).toString(DISPLAY_DATE_FORMAT);
+        this.firstSeen = DateTime.parse(eventResult.first_seen)
+                .withZone(DateTimeZone.forID(input.timeZone))
+                .toString(input.dateFormat);
         this.classGroup = eventResult.class_group;
         this.callStackGroup = eventResult.call_stack_group;
         this.errorLocation = new LocationView(eventResult.error_location);
@@ -72,30 +82,39 @@ public class EventView implements Serializable {
         this.jiraIssueUrl = eventResult.jira_issue_url;
         this.stats = eventResult.stats;
 
+        this.serviceId = args.serviceId;
+        this.serviceName = fetchServiceName(args);
+
         // This is needed because the snapshot needed to create the ARC screen link may not be available yet.
         this.arcLink = fetchArcLink(args, eventResult);
-        for(int i=1; i <= 12; i++){
-            if(this.arcLink == null || this.arcLink.isEmpty()){
+        for (int i = 1; i <= 12; i++) {
+            if (this.arcLink == null || this.arcLink.isEmpty()) {
                 try {
-                    System.out.println("Fetch Arc Link (Retry #"+i+")");
+                    System.out.println("Fetch Arc Link (Retry #" + i + ")");
                     // Pause for the cause
                     Thread.sleep(10000);
                     this.arcLink = fetchArcLink(args, eventResult);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }else{
+            } else {
                 break;
             }
         }
     }
 
-    private String fetchArcLink(ContextArgs args, EventResult eventResult){
+    private String fetchArcLink(ContextArgs args, EventResult eventResult) {
         return EventUtil.getEventRecentLinkDefault(args.apiClient(), args.serviceId, args.eventId,
                 new DateTime(eventResult.first_seen), DateTime.now(),
                 Arrays.asList(eventResult.introduced_by_application),
                 Arrays.asList(eventResult.introduced_by_server),
                 Arrays.asList(eventResult.introduced_by),
                 EventUtil.DEFAULT_PERIOD);
+    }
+
+    private String fetchServiceName(ContextArgs args){
+        ServicesRequest servicesRequest = ServicesRequest.newBuilder().setServiceId(args.serviceId).build();
+        ServicesResult result = args.apiClient().get(servicesRequest).data;
+        return result.services.get(0).name;
     }
 }

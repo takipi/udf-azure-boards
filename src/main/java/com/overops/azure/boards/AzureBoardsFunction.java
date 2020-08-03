@@ -3,6 +3,7 @@ package com.overops.azure.boards;
 import com.google.gson.GsonBuilder;
 import com.overops.azure.boards.model.AzureBoardsInput;
 import com.overops.azure.boards.model.AzureItem;
+import com.overops.azure.boards.model.AzureWorkItemResponse;
 import com.overops.azure.boards.model.EventView;
 import com.overops.azure.boards.view.DescriptionGenerator;
 import com.takipi.api.client.ApiClient;
@@ -14,9 +15,11 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.takipi.udf.ContextArgs;
+import org.joda.time.DateTimeZone;
 
 import java.net.URL;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Azure Boards Function
@@ -55,24 +58,35 @@ public class AzureBoardsFunction {
                     .build();
             EventResult eventResult = apiClient.get(eventsRequest).data;
 
-            if(eventResult == null){
+            if (eventResult == null) {
                 throw new AzureBoardsException("Error: Event query came back empty.");
             }
 
             // Create Azure Items
-            EventView event = new EventView(args, eventResult);
+            EventView event = new EventView(args, input, eventResult);
 
-            String name = "[OverOps] New " + event.getName() + " in " + event.getIntroducedByApplication() + " Application version " + event.getIntroducedBy();
-
+            String name = "[OverOps] New " + event.getName() + " in " + event.getIntroducedByApplication() + " release " + event.getIntroducedBy();
             String description = new DescriptionGenerator().generate(event);
-            System.out.println(description);
+            if (input.debug) {
+                System.out.println(description);
+            }
 
-            AzureItem title = new AzureItem("add", "/fields/System.Title", "OverOps", name);
-            AzureItem desc = new AzureItem("add", "/fields/System.Description", null, description);
-            AzureItem tag = new AzureItem("add", "/fields/System.Tags", null, "OverOps");
+            List<AzureItem> azureItems = new ArrayList<>();
+
+            azureItems.add(new AzureItem("add", "/fields/System.Title", "OverOps", name));
+            azureItems.add(new AzureItem("add", "/fields/System.Description", null, description));
+            azureItems.add(new AzureItem("add", "/fields/System.Tags", null, "OverOps"));
+            // Only provide workItemType if defined; if not present allow Azure to default values
+            if (!StringUtils.isEmpty(input.workItemType)) {
+                azureItems.add(new AzureItem("add", "/fields/System.WorkItemType", null, input.workItemType));
+            }
+            // Only provide priority if defined; if not present allow Azure to default values
+            if (input.priority > 0) {
+                azureItems.add(new AzureItem("add", "/fields/Microsoft.VSTS.Common.Priority", null, input.priority));
+            }
 
             Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-            String bodyContent = gson.toJson(Arrays.asList(title, desc, tag));
+            String bodyContent = gson.toJson(azureItems);
 
             // Authenticate
             String credential = Credentials.basic(input.authUser, input.authToken);
@@ -83,14 +97,22 @@ public class AzureBoardsFunction {
             RequestBody body = RequestBody.create(mediaType, bodyContent);
 
             // Send Request
-            URL url = new URL("https://dev.azure.com/" + input.organization + "/" + input.project + "/_apis/wit/workitems/$task?api-version=5.0");
+            String rootUrl = input.azureUrl + "/" + input.organization + "/" + input.project;
+            URL url = new URL(rootUrl + "/_apis/wit/workitems/$task?api-version=5.0");
             Request request = new Request.Builder()
                     .url(url)
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json-patch+json")
                     .header("Authorization", credential)
                     .build();
-            client.newCall(request).execute();
+            Response result = client.newCall(request).execute();
+            if (result.code() != 200) {
+                System.out.println("Error creating Azure Task:");
+                System.out.println(result.body().string());
+            } else {
+                AzureWorkItemResponse response = gson.fromJson(result.body().string(), AzureWorkItemResponse.class);
+                System.out.println("Work Item Created: " + rootUrl + "/_workitems/edit/" + response.getId() + "/");
+            }
 
         } catch (Exception e) {
             System.out.println("Exception: ");
@@ -103,7 +125,7 @@ public class AzureBoardsFunction {
         }
     }
 
-    private static AzureBoardsInput getLabelInput(String rawInput) {
+    public static AzureBoardsInput getLabelInput(String rawInput) {
 
         if (Strings.isNullOrEmpty(rawInput))
             throw new IllegalArgumentException("Input is empty");
@@ -128,6 +150,19 @@ public class AzureBoardsFunction {
         if (StringUtils.isEmpty(input.project))
             throw new IllegalArgumentException("Project can't be empty");
 
+        if (!StringUtils.isEmpty(input.dateFormat)) {
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(input.dateFormat);
+                simpleDateFormat.format(new Date());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Date format invalid; please refer back to documentation.");
+            }
+        }
+
+        if (!StringUtils.isEmpty(input.timeZone)) {
+            DateTimeZone.forID(input.timeZone);
+        }
+        
         return input;
     }
 

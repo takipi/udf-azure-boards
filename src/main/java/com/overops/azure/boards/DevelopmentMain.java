@@ -27,14 +27,18 @@ public class DevelopmentMain {
 
         ContextArgs contextArgs = new ContextArgs();
         contextArgs.apiHost = "http://localhost:8080";
-        contextArgs.apiKey = "_____________________";
+        contextArgs.apiKey = "_________________________";
         contextArgs.serviceId = "S1";
 
         StringBuilder rawInput = new StringBuilder();
+        rawInput.append("azureUrl=").append("\n");
         rawInput.append("authUser=chris.caspanello@overops.com").append("\n");
-        rawInput.append("authToken=_____________________").append("\n");
+        rawInput.append("authToken=_________________________").append("\n");
         rawInput.append("organization=ccaspanello").append("\n");
-        rawInput.append("project=sandbox2");
+        rawInput.append("project=sandbox2").append("\n");
+        rawInput.append("workItemType=").append("\n");
+        rawInput.append("priority=").append("\n");
+        rawInput.append("timeZone=");
 
         SummarizedView view = ViewUtil.getServiceViewByName(contextArgs.apiClient(), contextArgs.serviceId,
                 "All Events");
@@ -42,7 +46,7 @@ public class DevelopmentMain {
 
         // get an event that has occurred in the last 5 minutes
         DateTime to = DateTime.now();
-        DateTime from = to.minusDays(5);
+        DateTime from = to.minusMinutes(5);
 
         // date parameter must be properly formatted
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime().withZoneUTC();

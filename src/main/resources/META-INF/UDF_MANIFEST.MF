@@ -13,17 +13,48 @@
       <param_type>TEXT</param_type>
       <class_file>com.overops.azure.boards.AzureBoardsFunction</class_file>
       <default_params>
+        # Azure Boards URL
+        # Default: https://dev.azure.com
+        azureUrl=
+
         # Authentication User
+        # Required
         authUser=
 
         # Authentication Token
+        # Required
         authToken=
 
         # User or Organization associated with the project
+        # Required
         organization=
 
         # Project Name
+        # Required
         project=
+
+        # Work Item Type
+        # Default: Determined by default type in Azure Boards
+        workItemType=
+
+        # Work Item Priority
+        # Default: Determined by default type in Azure Boards
+        priority=
+
+        # Last Seen Date Format
+        # Valid Values: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
+        # Default: EEE, M/dd/yyyy HH:mm:ss z
+        dateFormat=
+
+        # Last Seen Date Format
+        # Valid Values: https://garygregory.wordpress.com/2013/06/18/what-are-the-java-timezone-ids/
+        # Default: UTC
+        timeZone=
+
+        # Debug Flag - If sent to true debug log messages will print
+        # Default: false
+        debug=
+
       </default_params>
     </function>
   </functions>
