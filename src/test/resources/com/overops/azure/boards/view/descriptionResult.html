@@ -24,40 +24,37 @@
     }
 </style>
 
-<h2>Summary: {{summary}}</h2>
-{{#if arcLink}}
-    <h4><a href="{{arcLink}}">See Event in OverOps</a></h4>
-{{else}}
-    <h4>Unable to generate link</h4>
-{{/if}}
+<h2>Summary: mySummary</h2>
+<h4><a href="myServiceLink">See Event in OverOps</a></h4>
 <table class="confluenceTable"><tbody>
 <tr>
     <th class="confluenceTh">Application</th>
-    <td class="confluenceTd">{{introducedByApplication}}</td>
+    <td class="confluenceTd">myApplication</td>
 </tr>
 <tr>
     <th class="confluenceTh">Deployment</th>
-    <td class="confluenceTd">{{introducedBy}}</td>
+    <td class="confluenceTd">myDeployment</td>
 </tr>
 <tr>
     <th class="confluenceTh">Environment</th>
-    <td class="confluenceTd">{{serviceId}} - {{serviceName}}</td>
+    <td class="confluenceTd">myServiceId - myServiceName</td>
 </tr>
 <tr>
     <th class="confluenceTh">Location</th>
-    <td class="confluenceTd">{{errorLocation.className}}.{{errorLocation.methodName}}:{{errorLocation.originalLineNumber}}</td>
+    <td class="confluenceTd">className1.methodName1:10</td>
 </tr>
 <tr>
     <th class="confluenceTh">First Seen</th>
-    <td class="confluenceTd">{{firstSeen}}</td>
+    <td class="confluenceTd">myFirstSeen</td>
 </tr>
 </tbody></table>
 
 <h2>Stackframes:</h2>
-{{#each stackFrames}}
-    <div>
-        {{className}}.{{methodName}}:{{originalLineNumber}}
-    </div>
-{{/each}}
+<div>
+    className4.methodName4:40
+</div>
+<div>
+    className5.methodName5:50
+</div>
 <br/>
 <br/>

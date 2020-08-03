@@ -17,6 +17,6 @@ public class AzureItem {
     private String op;
     private String path;
     private String from;
-    private String value;
+    private Object value;
 
 }
