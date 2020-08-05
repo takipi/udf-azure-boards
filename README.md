@@ -3,6 +3,8 @@ This User Defined Function (UDF) sends new OverOps events to Microsft Azure Boar
 
 
 ## Installation
+Latest Release:  https://github.com/takipi/udf-azure-boards/releases/latest
+
 Instructions on how to install UDFs can be found here:
 https://doc.overops.com/docs/user-defined-functions-udfs
 
