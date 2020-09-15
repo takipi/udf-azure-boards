@@ -55,6 +55,12 @@
         # Default: false
         debug=
 
+        # Custom Fields and Overrides
+        # This section can be used to default custom fields that are required
+        # System.AreaId=someValue
+        # Microsoft.VSTS.Common.Severity=someValue
+        # Custom.ProductUpdate=someValue
+
       </default_params>
     </function>
   </functions>

@@ -29,10 +29,22 @@ The `timeZone` use Java standard time zones.  A list of valid values can be foun
 Note:  Be mindful of Daylight Savings time.  For example Eastern Standard Time (EST) will not reflect the 1 hour time shift.  To reflect this you will have to use `EST5EDT` instead.
 
 
+### Custom Fields & Overrides
+In addition to the above defined fields you can default custom fields as well as override other default values.
 
-Azure DevOps personal access tokens can be created here:
-https://dev.azure.com/OverOps/_usersSettings/tokens
+Custom Fields:
+````
+Custom.ProductUpdate=someValue
+````
+Overrides:
+````
+System.AreaId=someValue
+Microsoft.VSTS.Common.Severity=someValue
+````
 
+## Creating personal access tokens
+For up to date documentation for creating personal access tokens please refer to the offical Microsoft documentation here: 
+https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page
 
 ## How to build
 This is a Maven project.  To build simply run:
