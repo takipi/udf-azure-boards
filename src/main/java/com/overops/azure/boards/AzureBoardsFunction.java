@@ -84,6 +84,10 @@ public class AzureBoardsFunction {
             if (input.priority > 0) {
                 azureItems.add(new AzureItem("add", "/fields/Microsoft.VSTS.Common.Priority", null, input.priority));
             }
+            // Populate custom field / field overrides
+            for(String key : input.otherFields.keySet()){
+                azureItems.add(new AzureItem("add", "/fields/"+key, null, input.otherFields.get(key)));
+            }
 
             Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
             String bodyContent = gson.toJson(azureItems);

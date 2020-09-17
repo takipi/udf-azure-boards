@@ -1,16 +1,17 @@
 package com.overops.azure.boards.model;
 
-import com.takipi.udf.input.Input;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Azure Boards Input Definition
  *
  * Required by UDF Implementation
  */
-public class AzureBoardsInput extends Input {
+public class AzureBoardsInput extends ModifiedInput {
 
-    // user defined parameters
     public String azureUrl;
     public String authUser;
     public String authToken;
@@ -21,6 +22,7 @@ public class AzureBoardsInput extends Input {
     public String dateFormat;
     public String timeZone;
     public boolean debug;
+    public Map<String, String> otherFields;
 
     // parse and populate variables
     private AzureBoardsInput(String raw) {
@@ -36,6 +38,14 @@ public class AzureBoardsInput extends Input {
         if(StringUtils.isEmpty(timeZone)){
             timeZone = "UTC";
         }
+    }
+
+    @Override
+    protected Map<String, String> otherFields() {
+        if(this.otherFields == null){
+            this.otherFields = new HashMap<>();
+        }
+        return this.otherFields;
     }
 
     // override toString() to set anomaly function label
