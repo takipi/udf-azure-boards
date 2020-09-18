@@ -22,7 +22,7 @@ public class AzureBoardsInput extends ModifiedInput {
     public String dateFormat;
     public String timeZone;
     public boolean debug;
-    public Map<String, String> otherFields;
+    private Map<String, String> otherFields;
 
     // parse and populate variables
     private AzureBoardsInput(String raw) {
@@ -41,7 +41,7 @@ public class AzureBoardsInput extends ModifiedInput {
     }
 
     @Override
-    protected Map<String, String> otherFields() {
+    public Map<String, String> otherFields() {
         if(this.otherFields == null){
             this.otherFields = new HashMap<>();
         }
