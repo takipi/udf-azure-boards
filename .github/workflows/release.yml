@@ -49,3 +49,4 @@ jobs:
           asset_path: /home/runner/work/udf-azure-boards/udf-azure-boards/target/udf-azure-boards-${{env.PROJECT_VERSION}}.jar
           asset_name: udf-azure-boards-${{env.PROJECT_VERSION}}.jar
           asset_content_type: application/java-archive
+          prerelease: true
