@@ -46,6 +46,8 @@ Microsoft.VSTS.Common.Severity=someValue
 For up to date documentation for creating personal access tokens please refer to the offical Microsoft documentation here: 
 https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=preview-page
 
+When creating the personal access token you will need "Read & Write" permission for "Work Items".
+
 ## How to build
 This is a Maven project.  To build simply run:
 ```shell
