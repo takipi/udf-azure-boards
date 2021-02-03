@@ -23,6 +23,7 @@ public class AzureBoardsInput extends ModifiedInput {
     public String timeZone;
     public boolean debug;
     private Map<String, String> otherFields;
+    public boolean runTest;
 
     // parse and populate variables
     private AzureBoardsInput(String raw) {

@@ -35,7 +35,7 @@ public class AzureBoardsFunction {
      * @return
      */
     public static String validateInput(String rawInput) {
-        return getLabelInput(rawInput).toString();
+        return getLabelInput(rawInput, true).toString();
     }
 
     /**
@@ -47,7 +47,7 @@ public class AzureBoardsFunction {
     public static void execute(String rawContextArgs, String rawInput) {
         try {
             ContextArgs args = (new Gson()).fromJson(rawContextArgs, ContextArgs.class);
-            AzureBoardsInput input = getLabelInput(rawInput);
+            AzureBoardsInput input = getLabelInput(rawInput, false);
 
             // Fetch Event
             ApiClient apiClient = args.apiClient();
@@ -61,55 +61,15 @@ public class AzureBoardsFunction {
             if (eventResult == null) {
                 throw new AzureBoardsException("Error: Event query came back empty.");
             }
+            Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+            String rootUrl = input.azureUrl + "/" + input.organization + "/" + input.project;
 
             // Create Azure Items
             EventView event = new EventView(args, input, eventResult);
 
             String name = "[OverOps] New " + event.getName() + " in " + event.getIntroducedByApplication() + " release " + event.getIntroducedBy();
             String description = new DescriptionGenerator().generate(event);
-            if (input.debug) {
-                System.out.println(description);
-            }
-
-            List<AzureItem> azureItems = new ArrayList<>();
-
-            azureItems.add(new AzureItem("add", "/fields/System.Title", "OverOps", name));
-            azureItems.add(new AzureItem("add", "/fields/System.Description", null, description));
-            azureItems.add(new AzureItem("add", "/fields/System.Tags", null, "OverOps"));
-            // Only provide workItemType if defined; if not present allow Azure to default values
-            if (!StringUtils.isEmpty(input.workItemType)) {
-                azureItems.add(new AzureItem("add", "/fields/System.WorkItemType", null, input.workItemType));
-            }
-            // Only provide priority if defined; if not present allow Azure to default values
-            if (input.priority > 0) {
-                azureItems.add(new AzureItem("add", "/fields/Microsoft.VSTS.Common.Priority", null, input.priority));
-            }
-            // Populate custom field / field overrides
-            for(String key : input.otherFields().keySet()){
-                azureItems.add(new AzureItem("add", "/fields/"+key, null, input.otherFields().get(key)));
-            }
-
-            Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-            String bodyContent = gson.toJson(azureItems);
-
-            // Authenticate
-            String credential = Credentials.basic(input.authUser, input.authToken);
-
-            // Create HTTP Client
-            OkHttpClient client = new OkHttpClient.Builder().build();
-            MediaType mediaType = MediaType.parse("application/json-patch+json");
-            RequestBody body = RequestBody.create(mediaType, bodyContent);
-
-            // Send Request
-            String rootUrl = input.azureUrl + "/" + input.organization + "/" + input.project;
-            URL url = new URL(rootUrl + "/_apis/wit/workitems/$task?api-version=5.0");
-            Request request = new Request.Builder()
-                    .url(url)
-                    .method("POST", body)
-                    .addHeader("Content-Type", "application/json-patch+json")
-                    .header("Authorization", credential)
-                    .build();
-            Response result = client.newCall(request).execute();
+            Response result = send(input, name, description);
             if (result.code() != 200) {
                 System.out.println("Error creating Azure Task:");
                 System.out.println(result.body().string());
@@ -129,7 +89,53 @@ public class AzureBoardsFunction {
         }
     }
 
-    public static AzureBoardsInput getLabelInput(String rawInput) {
+    public static Response send(AzureBoardsInput input, String name, String description) throws Exception {
+        if (input.debug) {
+            System.out.println(description);
+        }
+
+        List<AzureItem> azureItems = new ArrayList<>();
+
+        azureItems.add(new AzureItem("add", "/fields/System.Title", "OverOps", name));
+        azureItems.add(new AzureItem("add", "/fields/System.Description", null, description));
+        azureItems.add(new AzureItem("add", "/fields/System.Tags", null, "OverOps"));
+        // Only provide workItemType if defined; if not present allow Azure to default values
+        if (!StringUtils.isEmpty(input.workItemType)) {
+            azureItems.add(new AzureItem("add", "/fields/System.WorkItemType", null, input.workItemType));
+        }
+        // Only provide priority if defined; if not present allow Azure to default values
+        if (input.priority > 0) {
+            azureItems.add(new AzureItem("add", "/fields/Microsoft.VSTS.Common.Priority", null, input.priority));
+        }
+        // Populate custom field / field overrides
+        for(String key : input.otherFields().keySet()){
+            azureItems.add(new AzureItem("add", "/fields/"+key, null, input.otherFields().get(key)));
+        }
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+        String bodyContent = gson.toJson(azureItems);
+
+        // Authenticate
+        String credential = Credentials.basic(input.authUser, input.authToken);
+
+        // Create HTTP Client
+        OkHttpClient client = new OkHttpClient.Builder().build();
+        MediaType mediaType = MediaType.parse("application/json-patch+json");
+        RequestBody body = RequestBody.create(mediaType, bodyContent);
+
+        // Send Request
+        String rootUrl = input.azureUrl + "/" + input.organization + "/" + input.project;
+        URL url = new URL(rootUrl + "/_apis/wit/workitems/$task?api-version=5.0");
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json-patch+json")
+                .header("Authorization", credential)
+                .build();
+        return client.newCall(request).execute();
+    }
+
+    public static AzureBoardsInput getLabelInput(String rawInput, boolean test) {
 
         if (Strings.isNullOrEmpty(rawInput))
             throw new IllegalArgumentException("Input is empty");
@@ -166,7 +172,26 @@ public class AzureBoardsFunction {
         if (!StringUtils.isEmpty(input.timeZone)) {
             DateTimeZone.forID(input.timeZone);
         }
-        
+
+        if(test && input.runTest){
+            try{
+                String name = "[OverOps] Configuration Test";
+                String description = "This message is generated to test integration.  Feel free to delete this, no action further action is required.";
+                Response result = send(input,name, description);
+                if (result.code() != 200) {
+                    String payload = result.body().string();
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Test Failed (").append(result.code()).append(")");
+                    if(!payload.isEmpty()){
+                      sb.append(" - ").append(payload);
+                    }
+                    throw new IllegalArgumentException(sb.toString());
+                }
+            }catch(Exception e){
+                throw new IllegalArgumentException(e.getMessage());
+            }
+        }
+
         return input;
     }
 

@@ -18,7 +18,7 @@ public class AzureBoardsFunctionTest {
     public void testInvalidRawInput(){
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("Input is empty");
-        AzureBoardsFunction.getLabelInput("");
+        AzureBoardsFunction.getLabelInput("", false);
     }
 
     @Test
@@ -29,7 +29,7 @@ public class AzureBoardsFunctionTest {
         Properties properties = new Properties();
         properties.put("authUser", "");
 
-        AzureBoardsFunction.getLabelInput(propertiesToString(properties));
+        AzureBoardsFunction.getLabelInput(propertiesToString(properties), false);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class AzureBoardsFunctionTest {
         properties.put("authUser", "authuser");
         properties.put("authToken", "");
 
-        AzureBoardsFunction.getLabelInput(propertiesToString(properties));
+        AzureBoardsFunction.getLabelInput(propertiesToString(properties), false);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class AzureBoardsFunctionTest {
         properties.put("authToken", "authToken");
         properties.put("organization", "");
 
-        AzureBoardsFunction.getLabelInput(propertiesToString(properties));
+        AzureBoardsFunction.getLabelInput(propertiesToString(properties), false);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class AzureBoardsFunctionTest {
         properties.put("organization", "organization");
         properties.put("project", "");
 
-        AzureBoardsFunction.getLabelInput(propertiesToString(properties));
+        AzureBoardsFunction.getLabelInput(propertiesToString(properties), false);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class AzureBoardsFunctionTest {
         properties.put("project", "project");
         properties.put("dateFormat", "someBadValue");
 
-        AzureBoardsFunction.getLabelInput(propertiesToString(properties));
+        AzureBoardsFunction.getLabelInput(propertiesToString(properties), false);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class AzureBoardsFunctionTest {
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("The datetime zone id 'someBadValue' is not recognised");
 
-        AzureBoardsFunction.getLabelInput(propertiesToString(properties));
+        AzureBoardsFunction.getLabelInput(propertiesToString(properties), false);
     }
 
 

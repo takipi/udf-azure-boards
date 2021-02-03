@@ -22,6 +22,7 @@ Once installed fill out the following parameters
 | dateFormat   | No       | Last seen date format (Default: EEE, M/dd/yyyy HH:mm:ss z) |
 | timeZone     | No       | Last seen date time zone (Default: UTC)                    |
 | debug        | No       | Debug flag for logging (Default: false)                    |
+| runTest      | No       | Flag to run test message during configuration validation   |
 
 The `dateFormat` use a Java standard date format.  More information on how to construct a valid date format can be found here: https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
 
