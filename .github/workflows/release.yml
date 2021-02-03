@@ -19,8 +19,7 @@ jobs:
 
       - name: Fetch Version
         run: |
-          export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo ::set-env name=PROJECT_VERSION::${PROJECT_VERSION}
+          echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Build Test Analyze
         run: mvn clean install
