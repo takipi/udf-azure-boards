@@ -3,6 +3,7 @@
   <version>1.0.2</version>
   <library_name>my-udfs</library_name>
   <backwards_compatible>true</backwards_compatible>
+  <memory_size>256</memory_size>
   <functions>
     <function>
       <function_type>CHANNEL</function_type>
